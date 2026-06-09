@@ -22,7 +22,7 @@ For questions/bugs/contributions, join our [Discord server](https://discord.gg/q
 - **Clerk**: User authentication
 - **Stripe**: Payments
 - **Openrouter**: LLM selection for best-fit tasks
-- **Azure/OpenAI**: Voice generation
+- **Azure/OpenAI/60db**: Voice generation (text-to-speech)
 - **Firebase**: Storage
 - **NodeJS**: Longer running functions (initialization/exporting)
 
@@ -58,7 +58,7 @@ You be wondering, next is frontend(web runtime) and node is backend(node runtime
     - Since the LLM output may not be “perfect” match, we will then use an approximation algorithm.
 7. Use an LLM to translate each sentence it into the language the user selected.
     - We do this translation chunk by chunk, and use certain techniques to ensure the output matches the input.
-8. Use a text to speech API(currently just Azure and OpenAI) to generate audio!
+8. Use a text to speech API(currently Azure, OpenAI, and 60db) to generate audio!
 9. Upload those audio files to firebase storage, and save the URLs to our database via Prisma.
 10. The frontend client updates and renders all of that so users can preview realtime and edit
   

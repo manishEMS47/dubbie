@@ -24,7 +24,8 @@ import {
   Trash2Icon,
   Volume2Icon,
 } from "lucide-react";
-import { ALL_VOICES, Voice } from "@dubbie/shared/voices";
+import { Voice } from "@dubbie/shared/voices";
+import { useVoices } from "@/lib/hooks/useVoices";
 import { deleteSegment } from "@/lib/actions/deleteSegment";
 import { AudioPlayerIcon } from "@/components/CreateProjectCardPopup/AudioPlayerIcon";
 
@@ -55,6 +56,7 @@ export const ContextMenuWrapper = ({
   const segment = useAtomValue(segmentAtomFamily(segmentId));
   const createSegment = useSetAtom(createSegmentAtom);
   const removeSegment = useSetAtom(deleteSegmentAtom);
+  const voices = useVoices();
 
   const handleAddSegment = () => {
     if (segment) {
@@ -74,7 +76,7 @@ export const ContextMenuWrapper = ({
   if (!segment || !segment.text) return null;
 
   // Group voices by language
-  const voicesByLanguage = ALL_VOICES.reduce(
+  const voicesByLanguage = voices.reduce(
     (acc, voice) => {
       const language = voice.language || "Unknown";
       if (!acc[language]) {
@@ -120,7 +122,7 @@ export const ContextMenuWrapper = ({
                             className="flex w-full flex-col flex-nowrap items-start justify-between"
                             onClick={() => handleChangeVoice(voice)}
                           >
-                            <div>{voice.name}</div>
+                            <div>{voice.displayName ?? voice.name}</div>
                             <div className="opacity-50">
                               {voice.gender} - {voice.provider}
                             </div>

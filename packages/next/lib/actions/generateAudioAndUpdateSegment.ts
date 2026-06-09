@@ -4,7 +4,7 @@ import { Segment, prisma } from "@dubbie/db";
 import { uploadAudioArrayToStorage } from "@dubbie/shared/services/firebaseUploads";
 import { generateAudio } from "@dubbie/shared/services/generateAudio";
 import { getAudioDuration } from "@dubbie/shared/utils/getAudioDuration";
-import { ALL_VOICES } from "@dubbie/shared/voices";
+import { resolveVoice } from "@dubbie/shared/voices";
 
 export async function generateAudioAndUpdateDB({
   segment,
@@ -12,16 +12,7 @@ export async function generateAudioAndUpdateDB({
   segment: Segment;
 }): Promise<Segment> {
   try {
-    const voiceName = segment.voiceName;
-    const voiceProvider = segment.voiceProvider;
-
-    const voice = ALL_VOICES.find(
-      (voice) => voice.name === voiceName && voice.provider === voiceProvider,
-    );
-
-    if (!voice) {
-      throw new Error("Voice not found");
-    }
+    const voice = resolveVoice(segment.voiceName, segment.voiceProvider);
 
     const audio = await generateAudio({
       text: segment.text,

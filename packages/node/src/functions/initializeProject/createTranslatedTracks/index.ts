@@ -6,7 +6,7 @@ import { getDefaultVoiceForLanguage } from "@dubbie/shared/languages";
 import { uploadAudioArrayToStorage } from "@dubbie/shared/services/firebaseUploads";
 import { generateAudio } from "@dubbie/shared/services/generateAudio";
 import { getAudioDuration } from "@dubbie/shared/utils/getAudioDuration";
-import { ALL_VOICES } from "@dubbie/shared/voices";
+import { ALL_VOICES, resolveVoice } from "@dubbie/shared/voices";
 import { appendToJsonFile } from "@/functions/appendToJsonFile";
 
 export async function createTranslatedTrack(projectId: string): Promise<string> {
@@ -184,22 +184,16 @@ async function generateAudioWithRetry(
     `Finding voice for segment with voiceName: ${translatedSegment.voiceName} and language: ${language}`
   );
 
+  // 60db voices aren't in the static ALL_VOICES list (they're remote), so resolve them from
+  // the stored voice_id. For azure/openai keep the existing name lookup + language fallback.
   const voice =
-    ALL_VOICES.find((v) => {
-      const match = v.name === translatedSegment.voiceName;
-      console.log(`Checking voice: ${v.name}, Match: ${match}`);
-      return match;
-    }) ||
-    getDefaultVoiceForLanguage(language) ||
-    ALL_VOICES[0];
+    translatedSegment.voiceProvider === "60db"
+      ? resolveVoice(translatedSegment.voiceName, translatedSegment.voiceProvider)
+      : ALL_VOICES.find((v) => v.name === translatedSegment.voiceName) ||
+        getDefaultVoiceForLanguage(language) ||
+        ALL_VOICES[0];
 
-  if (!voice) {
-    console.log(
-      `No specific voice found for voiceName: ${translatedSegment.voiceName}. Using default voice.`
-    );
-  } else {
-    console.log(`Selected voice: ${voice.name}`);
-  }
+  console.log(`Selected voice: ${voice.name}`);
 
   const audio = await generateAudio({ text, voice });
   if (!audio) return;

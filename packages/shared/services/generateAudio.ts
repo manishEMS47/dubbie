@@ -5,6 +5,7 @@ import {
   type SpeechSynthesisResult,
 } from "microsoft-cognitiveservices-speech-sdk";
 import openai from "@dubbie/shared/clients/openaiClient";
+import { synthesizeSixtyDbAudio } from "@dubbie/shared/clients/sixtyDbClient";
 import { type Voice } from "../voices";
 
 export async function generateAudio({
@@ -20,8 +21,29 @@ export async function generateAudio({
   if (voice.provider === "openai") {
     return generateOpenAIAudio(text, voice.name as any); //TODO: add voice name
   }
+  if (voice.provider === "60db") {
+    // For 60db, voice.name holds the voice_id (a UUID).
+    return generateSixtyDbAudio(text, voice.name);
+  }
   console.warn("Unsupported provider, using default voice");
   return generateAzureAudio(text, "en-US-AndrewMultilingualNeural");
+}
+
+async function generateSixtyDbAudio(
+  text: string,
+  voiceId: string,
+  retryCount = 0,
+): Promise<ArrayBuffer> {
+  try {
+    return await synthesizeSixtyDbAudio({ text, voice_id: voiceId });
+  } catch (error) {
+    if (retryCount < 3) {
+      console.warn(`60db synthesis failed, retrying in ${2 ** retryCount} seconds...`);
+      await new Promise((resolve) => setTimeout(resolve, 2 ** retryCount * 1000));
+      return generateSixtyDbAudio(text, voiceId, retryCount + 1);
+    }
+    throw error;
+  }
 }
 
 async function generateAzureAudio(

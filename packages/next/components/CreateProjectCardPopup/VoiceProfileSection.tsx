@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Select,
   SelectContent,
@@ -8,9 +10,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { HelpCircle } from "lucide-react";
-import { ALL_VOICES } from "@dubbie/shared/voices";
+import { useVoices } from "@/lib/hooks/useVoices";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
-import { useRef } from "react";
 import { AudioPlayerIcon } from "./AudioPlayerIcon";
 
 export function VoiceProfileSection({
@@ -18,6 +19,8 @@ export function VoiceProfileSection({
 }: {
   setSelectedVoiceName: (value: string) => void;
 }) {
+  const voices = useVoices();
+
   return (
     <div className="flex w-full items-center justify-between gap-4">
       <div className="flex items-center text-sm">
@@ -49,7 +52,7 @@ export function VoiceProfileSection({
         <SelectContent className="pr-2">
           <SelectGroup>
             <SelectLabel className="font-medium opacity-50">Voices</SelectLabel>
-            {ALL_VOICES.map((option) => (
+            {voices.map((option) => (
               <div
                 key={option.name}
                 className="flex flex-row items-center justify-start gap-2"
@@ -58,7 +61,7 @@ export function VoiceProfileSection({
                   value={option.name}
                   className="flex w-full flex-row flex-nowrap items-center justify-between"
                 >
-                  <div>{option.name}</div>
+                  <div>{option.displayName ?? option.name}</div>
 
                   <div className="opacity-50">
                     {option.language} - {option.gender} - {option.provider}

@@ -6,11 +6,13 @@ import { initializeProject } from "@/lib/apis/initializeProject";
 import { determineMediaType, getMediaDurationFromFile } from "@/lib/mediaUtils";
 import { AcceptedLanguage } from "@dubbie/db";
 import { getDefaultVoiceForLanguage } from "@dubbie/shared/languages";
-import { ALL_VOICES } from "@dubbie/shared/voices";
+import { useVoices } from "@/lib/hooks/useVoices";
 
 export const useProjectCreation = () => {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  // Full list incl. 60db, so a selected 60db voice_id resolves to its provider.
+  const voices = useVoices();
 
   const handleCreateProject = async ({
     url,
@@ -36,7 +38,7 @@ export const useProjectCreation = () => {
     let voiceProvider;
 
     if (userSelectedVoice) {
-      const voice = ALL_VOICES.find((v) => v.name === userSelectedVoice);
+      const voice = voices.find((v) => v.name === userSelectedVoice);
       if (voice) {
         voiceName = voice.name;
         voiceProvider = voice.provider;
